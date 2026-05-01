@@ -83,18 +83,20 @@ body {
 /* Badge Notifikasi Angka 68 */
 .badge-container {
   position: relative;
+  border: none;
 }
 
 .badge {
   position: absolute;
   top: -8px;
   right: -15px;
-  background-color: #fe2c55; /* Warna merah khas TikTok */
+  background-color: #fe2c55;
   color: white;
   font-size: 9px;
   padding: 2px 5px;
   border-radius: 10px;
   font-weight: bold;
+  border: none;
 }
 
 /* Menu Aktif (Saran) */
@@ -187,12 +189,12 @@ video {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 13px;
 }
 
 .icon-box {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   gap: 8px;
   cursor: pointer;
@@ -246,9 +248,10 @@ video {
 /* BOTTOM TEXT */
 .bottom {
   position: absolute;
-  bottom: 20px;
+  bottom: 100px;
   left: 10px;
   width: 75%;
+  /* background-color: tomato; */
 }
 
 .username {
@@ -263,7 +266,7 @@ video {
 }
 
 .more {
-  color: rgb(201, 194, 194);
+  color: rgb(225, 217, 217);
   cursor: pointer;
 }
 
@@ -365,7 +368,7 @@ video {
 .music-bar {
     display: flex;
     position: absolute;
-    bottom: 5px;
+    bottom: 75px;
     left: 10px;
     right: 10px;
     align-items: center;
@@ -378,21 +381,12 @@ video {
   white-space: nowrap;
   overflow: hidden;
   width: 100%;
-  animation: scrollText 10s linear infinite;
 }
 
-@keyframes scrollText {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
 
-/* DISC */
 .disc {
-  position: absolute;
-  right: 20px;
-  bottom: 1px;
-  width: 45px;
-  height: 45px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
   animation: spin 10s linear infinite;
@@ -458,3 +452,104 @@ video {
 .tiktok-loader {
   mix-blend-mode: screen;
 }
+
+.bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 101%;
+            background-color: #000000; /* Latar belakang hitam */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px 15px 15px; /* Padding disesuaikan */
+            box-sizing: border-box;
+            border-top: 1px solid #222; /* Garis batas tipis di atas */
+            z-index: 9999; /* Agar selalu tampil di atas konten lain */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Item Navigasi (Teks & Icon) */
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888888; /* Warna abu-abu untuk menu tidak aktif */
+            text-decoration: none;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        /* Item Aktif (Contoh: Beranda) */
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        /* Ukuran Icon dan Jarak */
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Container khusus untuk icon yang punya notifikasi */
+        .icon-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Badge Notifikasi Angka (Kotak Masuk) */
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background-color: #fe2c55; /* Merah khas */
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 12px;
+            border: 2px solid #000; /* Border hitam agar terlihat "memotong" icon di belakangnya */
+        }
+
+        /* Badge Titik Merah (Profil) */
+        .dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #fe2c55;
+            border-radius: 50%;
+            border: 2px solid #000;
+        }
+
+        /* --- STYLING TOMBOL TAMBAH (TENGAH) --- */
+        .add-btn-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .add-btn {
+            width: 45px;
+            height: 30px;
+            background-color: #ffffff;
+            color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            position: relative;
+            z-index: 5;
+            border-radius: 10px;
+            border-left: 4px solid #fe2c55;
+            border-right: 4px solid #25f4ee;
+        }
+
+        
