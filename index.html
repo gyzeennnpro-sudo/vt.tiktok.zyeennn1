@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <title>TikTok UI</title>
+  </head>
+  <body>
+            <div class="top-nav">
+          <div class="nav-left">
+            <div class="live-container">
+              <i class="fa-brands fa-bilibili"></i>
+              <span class="live-text">LIVE</span>
+            </div>
+          </div>
+      
+          <div class="nav-center">
+            <span>Jelajahi</span>
+            <div class="badge-container">
+              <span>Teman</span>
+              <span class="badge">68</span>
+            </div>
+            <span>Mengikuti</span>
+            <div class="active-menu">
+              <span>Saran</span>
+              <div class="underline"></div>
+            </div>
+          </div>
+      
+          <!-- Icon Search -->
+          <div class="nav-right">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+        
+            <div class="feed-container" id="feedContainer">
+              <div class="video-item">
+                <div class="container">
+                  <video loop>
+                    <source src="vidio/bini_gweh.mp4" type="video/mp4">
+                  </video>
+
+          <div class="pause-overlay">
+            <i class="fa-solid fa-play"></i>
+          </div>
+
+          <i class="fa-solid fa-heart like"></i>
+
+          <div class="sidebar">
+            <div class="profile-wrap">
+              <img src="https://p16-common-sign.tiktokcdn.com/tos-alisg-avt-0068/7f2275a2c583683013928f180f749400~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=fa0e24cb&x-expires=1777777200&x-signature=5LEgydPupcmZnq8KrJa2mDwdOto%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1" class="profile" />
+              <div class="follow">+</div>
+            </div>
+
+            <div class="icon-box like-btn">
+              <i class="fa-solid fa-heart"></i>
+              <span>87.7K</span>
+            </div>
+
+            <div class="icon-box" onclick="openComments(event)">
+              <i class="fa-solid fa-comment"></i>
+              <span>290</span>
+            </div>
+
+            <div class="icon-box save-btn">
+              <i class="fa-solid fa-bookmark"></i>
+              <span>7.1K</span>
+            </div>
+
+            <div class="icon-box">
+              <i class="fa-solid fa-share"></i>
+              <span>5.0K</span>
+            </div>
+          </div>
+
+          <div class="bottom">
+            <div class="username">Zyeennn 🚀🚀</div>
+            <div class="caption"
+              data-short="my bini Gweh inimah😋 <span class='hashtag'>#クラスで２番目に可愛い女の子と友だちになった</span>..."
+              data-full="my bini Gweh inimah😋 <span class='hashtag'>#クラスで２番目に可愛い女の子と友だちになった</span> <span class='hashtag'>#朝凪海</span> <span class='hashtag'>#前原真樹</span> <span class='hashtag'>#天海夕</span>"
+            >
+              my bini Gweh inimah😋 <span class="hashtag">#クラスで２番目に可愛い女の子と友だちになった</span>...
+              <span class="more" onclick="toggleText(event)">lebih banyak</span>
+            </div>
+          </div>
+
+          <div class="music-bar">
+            <div class="music-text">
+              🎵 original sound - farlord?? • original sound - farlord??
+            </div>
+            <div class="disc">
+              <img src="https://i.pravatar.cc/50">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =======================================
+      ============== VIDIO 2 ================
+      ======================================= -->
+
+
+          <div class="top-nav">
+          <div class="nav-left">
+            <div class="live-container">
+              <i class="fa-brands fa-bilibili"></i>
+              <span class="live-text">LIVE</span>
+            </div>
+          </div>
+      
+          <div class="nav-center">
+            <span>Jelajahi</span>
+            <div class="badge-container">
+              <span>Teman</span>
+              <span class="badge">68</span>
+            </div>
+            <span>Mengikuti</span>
+            <div class="active-menu">
+              <span>Saran</span>
+              <div class="underline"></div>
+            </div>
+          </div>
+      
+          <!-- Icon Search -->
+          <div class="nav-right">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+
+      <div class="video-item">
+
+        <div class="tiktok-loader">
+          <div class="circle red"></div>
+          <div class="circle blue"></div>
+        </div>
+
+          <div class="pause-overlay">
+            <i class="fa-solid fa-play"></i>
+          </div>
+
+          <i class="fa-solid fa-heart like"></i>
+
+          <div class="sidebar">
+            <div class="profile-wrap">
+              <img src="https://i.pravatar.cc/150" class="profile" />
+              <div class="follow">+</div>
+            </div>
+
+            <div class="icon-box like-btn">
+              <i class="fa-solid fa-heart"></i>
+              <span>120K</span>
+            </div>
+
+            <div class="icon-box" onclick="openComments(event)">
+              <i class="fa-solid fa-comment"></i>
+              <span>450</span>
+            </div>
+
+            <div class="icon-box save-btn">
+              <i class="fa-solid fa-bookmark"></i>
+              <span>9.2K</span>
+            </div>
+
+            <div class="icon-box">
+              <i class="fa-solid fa-share"></i>
+              <span>6.5K</span>
+            </div>
+          </div>
+
+          <div class="bottom">
+            <div class="username">Bang Ditzz 🚀</div>
+            <div class="caption"
+              data-short="Another day another vibe <span class='hashtag'>#TikTok</span>..."
+              data-full="Another day another vibe <span class='hashtag'>#TikTok</span> <span class='hashtag'>#Viral</span> <span class='hashtag'>#FYP</span>"
+            >
+              Another day another vibe <span class="hashtag">#TikTok</span>...
+              <span class="more" onclick="toggleText(event)">lebih banyak</span>
+            </div>
+          </div>
+
+          <div class="music-bar">
+            <div class="music-text">
+              🎵 Trending Sound - Artist Name
+            </div>
+            <div class="disc">
+              <img src="https://i.pravatar.cc/60">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comments" id="comments">
+      <div style="text-align: center;">Komentar</div>
+      <div class="loader">
+        <div class="red"></div>
+        <div class="blue"></div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
