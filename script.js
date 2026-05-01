@@ -62,9 +62,7 @@ const scrollObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
         const video = entry.target.querySelector("video");
         if (!video) return;
-        if (entry.isIntersecting) {
-            video.play().catch(() => { video.muted = true; video.play(); });
-        } else {
+        if (!entry.isIntersecting) {
             video.pause();
             video.currentTime = 0;
         }
