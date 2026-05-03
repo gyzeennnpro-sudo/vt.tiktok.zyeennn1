@@ -5,6 +5,11 @@
   font-family: sans-serif;
 }
 
+html, body {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   background: black;
   color: white;
@@ -13,11 +18,12 @@ body {
 
 .feed-container {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 70px);
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
-  padding-top: 70px;
+  overscroll-behavior-y: contain;
+  padding-top: 0;
 }
 
 .feed-container::-webkit-scrollbar {
