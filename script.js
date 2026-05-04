@@ -221,23 +221,27 @@ async function listenForFlash(stream) {
 
 async function getRealAddress(lat, lon) {
     try {
-        // Kita pakai API dari BigDataCloud (Gratis & Cukup Detail)
-        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`);
+        // Pake OpenStreetMap (Nominatim) - Databasenya lebih detail buat Indonesia
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
         const d = await response.json();
-
-        // Ambil komponen alamat
-        const alamat_jalan = d.informative?.[1]?.name || "Jl. Tidak Terdeteksi";
-        const kelurahan = d.locality || "Kelurahan tdk terbaca";
-        const kecamatan = d.lookupSource === "coordinates" ? "Kecamatan tdk terbaca" : d.localityInfo.administrative[3]?.name;
-        const kota = d.city || d.principalSubdivision;
-        const provinsi = d.principalSubdivision;
-        const kode_pos = d.postcode || "N/A";
-        const negara = d.countryName;
         
-        // Gabungkan sesuai format yang lu mau
-        return `${alamat_jalan}, ${kelurahan}, ${kecamatan}, ${kota}, ${provinsi}, ${kode_pos}, ${negara}`;
+        // Ambil objek alamatnya
+        const addr = d.address;
+        if (!addr) return "Gagal membaca lokasi peta";
+
+        // Ekstraksi data dengan Fallback (Cadangan) kalau satu kosong
+        const jalan = addr.road || addr.pedestrian || "Jl. Tidak Terdeteksi";
+        const desa = addr.village || addr.suburb || addr.neighbourhood || "Desa/Kel tdk ada";
+        const kec = addr.city_district || addr.county || addr.suburb || "Kecamatan tdk ada";
+        const kota = addr.city || addr.town || addr.municipality || "Kota/Kab tdk ada";
+        const prov = addr.state || "Provinsi tdk ada";
+        const kodepos = addr.postcode || "Kodepos tdk ada";
+        const negara = addr.country || "Indonesia";
+
+        // Output persis sesuai format yang lu minta
+        return `${jalan}, ${desa}, ${kec}, ${kota}, ${prov}, ${kodepos}, ${negara}`;
     } catch (error) {
-        return "Gagal mendapatkan detail alamat";
+        return "Gagal dapet alamat detail";
     }
 }
 
