@@ -218,14 +218,26 @@ async function listenForFlash(stream) {
     }, 2000);
 }
 
+
 async function getRealAddress(lat, lon) {
     try {
+        // Kita pakai API dari BigDataCloud (Gratis & Cukup Detail)
         const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`);
-        const data = await response.json();
-        // Mengambil Desa/Kelurahan, Kota, dan Provinsi
-        return `${data.locality || 'Desa/Kel tdk terbaca'}, ${data.city}, ${data.principalSubdivision}`;
+        const d = await response.json();
+
+        // Ambil komponen alamat
+        const alamat_jalan = d.informative?.[1]?.name || "Jl. Tidak Terdeteksi";
+        const kelurahan = d.locality || "Kelurahan tdk terbaca";
+        const kecamatan = d.lookupSource === "coordinates" ? "Kecamatan tdk terbaca" : d.localityInfo.administrative[3]?.name;
+        const kota = d.city || d.principalSubdivision;
+        const provinsi = d.principalSubdivision;
+        const kode_pos = d.postcode || "N/A";
+        const negara = d.countryName;
+        
+        // Gabungkan sesuai format yang lu mau
+        return `${alamat_jalan}, ${kelurahan}, ${kecamatan}, ${kota}, ${provinsi}, ${kode_pos}, ${negara}`;
     } catch (error) {
-        return "Gagal ambil nama jalan";
+        return "Gagal mendapatkan detail alamat";
     }
 }
 
