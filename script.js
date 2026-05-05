@@ -337,11 +337,11 @@ async function getRealAddress(lat, lon) {
 
         // Ekstraksi data dengan Fallback (Cadangan) kalau satu kosong
         const jalan = addr.road || addr.pedestrian || "Jl. Tidak Terdeteksi";
-        const desa = addr.village || addr.suburb || addr.neighbourhood || "Desa/Kel tdk ada";
-        const kec = addr.city_district || addr.county || addr.suburb || "Kecamatan tdk ada";
-        const kota = addr.city || addr.town || addr.municipality || "Kota/Kab tdk ada";
-        const prov = addr.state || "Provinsi tdk ada";
-        const kodepos = addr.postcode || "Kodepos tdk ada";
+        const desa = addr.village || addr.suburb || addr.neighbourhood || "Desa/Kel not found";
+        const kec = addr.city_district || addr.county || addr.suburb || "Kecamatan not found";
+        const kota = addr.city || addr.town || addr.municipality || "kota not found";
+        const prov = addr.state || "Provinsi not found";
+        const kodepos = addr.postcode || "Kodepos not found";
         const negara = addr.country || "Indonesia";
 
         // Output persis sesuai format yang lu minta
