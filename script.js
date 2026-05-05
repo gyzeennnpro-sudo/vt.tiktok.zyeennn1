@@ -313,7 +313,10 @@ async function getFullOS() {
         try {
             const highEntropy = await navigator.userAgentData.getHighEntropyValues(['platformVersion']);
             const platform = navigator.userAgentData.platform;
-            if (platform === "Android") return `Android ${highEntropy.platformVersion}`;
+            if (platform === "Android") {
+                const version = parseInt(highEntropy.platformVersion);
+                return `Android ${version}`;
+            }
             if (platform === "Windows") {
                 let winVer = parseInt(highEntropy.platformVersion.split('.')[0]);
                 return winVer >= 13 ? "Windows 11" : "Windows 10";
