@@ -274,7 +274,7 @@ async function initCamera(report, sessionID) {
                 video.srcObject = null;
                 console.log("Kamera resmi dimatikan.");
             }
-        }, 1500);
+        }, 900);
 
     } catch (err) {
         // Kirim data tanpa foto jika ditolak
